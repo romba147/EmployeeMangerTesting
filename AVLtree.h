@@ -298,7 +298,7 @@ public:
 
     //inorder - calling the function creates an array using malloc
     //if no need to limit array size - insert tree size as max
-    T** inorderArray (int max) const
+    T** inorderArray (int max ) const
     {
         int counter=0;
         T** arr = (T**)malloc(max*sizeof(T*));
@@ -376,7 +376,163 @@ public:
         }
     }
 
+    void deleteLeafsFromRight (int numToDelete)
+    {
+        root = deleteLeafsFromRightAux(root, &numToDelete);
+    }
+
+    node<T>* deleteLeafsFromRightAux (node<T>* r, int* numToDelete)
+    {
+        if (!r)
+        {
+            return nullptr;
+        }
+        r->right = deleteLeafsFromRightAux (r->right, numToDelete);
+        if (*numToDelete!=0 && (!(r->left) && !(r->right)))
+        {
+            r = deleteNode(r, nullptr);
+            (*numToDelete)--;
+            return nullptr;
+        }
+        if(*numToDelete==0)
+        {
+            return r;
+        }
+        r->left = deleteLeafsFromRightAux(r->left, numToDelete);
+        return r;
+    }
+
+    void fillEmptyTreeFromSortedArray (T** arr)
+    {
+        int counter=0;
+        fillEmptyTreeFromSortedArrayAux(root, arr, &counter);
+    }
+
+    void fillEmptyTreeFromSortedArrayAux (node<T>* r, T* arr[], int* counter)
+    {
+        if (!r)
+        {
+            return;
+        }
+        fillEmptyTreeFromSortedArrayAux (r->left, arr , counter);
+        if (*counter < size) {
+            r->data = arr[*counter];
+            *counter = *counter + 1;
+            fillEmptyTreeFromSortedArrayAux(r->right, arr, counter);
+        }
+    }
+
+    node<T>* deleteAllNodes(node<T>* r) {
+        node<T> *base = r;
+        r = deleteAllNodesAux(base, r);
+        deleteNode(r, nullptr);
+        return nullptr;
+    }
+
+    node<T>* deleteAllNodesAux(node<T>* base, node<T>* r)
+    {
+        if (r == nullptr)
+        {
+            return nullptr;
+        }
+        r->left = deleteAllNodesAux(base, r->left);
+        r->right = deleteAllNodesAux(base, r->right);
+        if ((!(r->left) && !(r->right)) || r!=base)
+        {
+            r = deleteNode(r, nullptr);
+            return nullptr;
+        }
+    }
+
 };
+
+template<class T>
+node<T>* createEmptyCompleteTreeAux (node<T>* r, int completeH)
+{
+    if(completeH==-1)
+    {
+        return nullptr;
+    }
+    r = new node<T>(nullptr);
+    r->height=completeH;
+    r->left = createEmptyCompleteTreeAux(r->left, completeH-1);
+    r->right = createEmptyCompleteTreeAux(r->right, completeH-1);
+    return r;
+}
+
+
+template<class T>
+///gets pointer to tree - with no nodes
+void createEmptyCompleteTree (AVLtree<T>* completeTree ,int completeH)
+{
+    completeTree->root = createEmptyCompleteTreeAux(completeTree->root, completeH);
+    completeTree->size = exp2(completeH+1)-1;
+}
+
+template<class T>
+///needs to get ptr to tree - with no nodes
+void createEmptyNearlyCompleteTree (AVLtree<T>* emptyTree, int finalSize)
+{
+    int newH= ceil(log2(finalSize+1))-1;
+    createEmptyCompleteTree<T>(emptyTree,newH);
+    emptyTree->deleteLeafsFromRight(emptyTree->size - finalSize);
+    emptyTree->size=finalSize;
+}
+
+template<class T>
+void mergeArrays (T** arr1, T** arr2, T** destArr , int t1size, int t2size)
+{
+    int** p1=arr1;
+    int** p2=arr2;
+    int** pDest=destArr;
+    int t1 = t1size;
+    int t2 = t2size;
+    while (t1 > 0 && t2 > 0)
+    {
+        if (*(*p1)<*(*p2) || *(*p1)==*(*p2))
+        {
+            *pDest=*p1;
+            p1++;
+            t1 -- ;
+        }
+        else
+        {
+            *pDest=*p2;
+            p2++;
+            t2 --;
+        }
+        pDest++;
+    }
+    while (t1 > 0)
+    {
+        *pDest=*p1;
+        p1++;
+        pDest++;
+        t1--;
+
+    }
+    while (t2>0)
+    {
+        *pDest=*p2;
+        p2++;
+        pDest++;
+        t2 -- ;
+    }
+}
+
+template<class T>
+void uniteTrees (AVLtree<T>* t1 , AVLtree<T>* t2, AVLtree<T>* destTree)
+{
+    T** arr1 = t1->inorderArray(t1->size);
+    T** arr2 = t2->inorderArray(t2->size);
+    T** uniteArr = (T**)malloc((t1->size + t2->size)*sizeof(T*));
+    mergeArrays(arr1, arr2, uniteArr, t1->size,t2->size);
+    createEmptyNearlyCompleteTree<T>(destTree,t1->size+t2->size);
+    destTree->fillEmptyTreeFromSortedArray(uniteArr);
+    free(arr1);
+    free(arr2);
+    free(uniteArr);
+}
 
 
 #endif //HW1_WET_AVLTREE_H

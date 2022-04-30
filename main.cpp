@@ -41,6 +41,13 @@ int main()
     steve->GetHighestEarner(11, &highestEarner);
     cout << "exp 3 " << highestEarner << endl;
 
+    steve->AddCompany(22 , 300000);
+    steve->AddEmployee(17 , 22 ,6000 , 5 );
+    int grade =0;
+    int salary =0;
+    int companyId =0;
+    steve->GetEmployeeInfo(17 , &companyId, &salary,&grade);
+    cout << "exp 22 "<< companyId << " exp 6000 " << salary << "exp 5 " << grade << endl;
 
 
 }

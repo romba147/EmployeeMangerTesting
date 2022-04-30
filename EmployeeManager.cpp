@@ -284,6 +284,7 @@ StatusType EmployeeManager::GetHighestEarnerInEachCompany(int NumOfCompanies, in
     {
         return ALLOCATION_ERROR;
     }
+    int stam =0;
     auto* array = nonEmptyCompanies->inorderArray(NumOfCompanies);
     for (int i =0 ; i<NumOfCompanies ; i++)
     {
@@ -387,6 +388,45 @@ StatusType EmployeeManager::GetNumEmployeesMatching(int CompanyID, int MinEmploy
     }
     *NumOfEmployees = numVeryMatching;
     free(preArray2);
+    return SUCCESS;
+}
+
+StatusType EmployeeManager::AcquireCompany(int AcquirerId, int TargetId, double factor)
+{
+    if (AcquirerId <=0 || TargetId <=0 || factor < 1 || TargetId == AcquirerId){
+        return INVALID_INPUT;
+    }
+    auto* acqCompany = getCompany(allCompanies , AcquirerId);
+    if (acqCompany == nullptr)
+    {
+        return FAILURE;
+    }
+    auto* trgCompany = getCompany(allCompanies , TargetId);
+    if (trgCompany == nullptr)
+    {
+        return FAILURE;
+    }
+    if (10*(trgCompany->getValue()) > acqCompany->getValue())
+    {
+        return FAILURE;
+    }
+    auto* newTreeEmployee = new AVLtree<Employee>();
+    auto* newTreeEmployeeById = new AVLtree<EmployeeById>();
+    uniteTrees<EmployeeById>(acqCompany->getEmployeesByIdTree(),trgCompany->getEmployeesByIdTree(),newTreeEmployeeById);
+    uniteTrees<Employee>(acqCompany->getEmployeesTree(),trgCompany->getEmployeesTree(),newTreeEmployee);
+    acqCompany->setEmployeesByIdTree(newTreeEmployeeById);
+    acqCompany->setEmployeesTree(newTreeEmployee);
+    auto* toChangeCompany = trgCompany->getEmployeesByIdTree()->inorderArray(trgCompany->getEmployeesNum());
+    for (int i =0; i<trgCompany->getEmployeesNum() ; i++)
+    {
+        toChangeCompany[i]->changeCompany(acqCompany);
+    }
+    acqCompany->ChangeValue((int)(factor*((double)(acqCompany->getValue()))));
+    trgCompany->getEmployeesTree()->deleteAllNodes(trgCompany->getEmployeesTree()->root);
+    trgCompany->getEmployeesByIdTree()->deleteAllNodes(trgCompany->getEmployeesByIdTree()->root);
+    acqCompany->setEmployeesNum(acqCompany->getEmployeesNum() + trgCompany->getEmployeesNum());
+    trgCompany->setEmployeesNum(0);
+    this->RemoveCompany(TargetId);
     return SUCCESS;
 }
 

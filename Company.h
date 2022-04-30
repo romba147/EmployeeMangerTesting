@@ -52,12 +52,27 @@ public:
         return employees_id_tree;
     }
 
+    Company setEmployeesTree(AVLtree<Employee>* newTree)
+    {
+        employees_tree = newTree;
+        return *this;
+    }
+
+    Company setEmployeesByIdTree(AVLtree<EmployeeById>* newTree)
+    {
+        employees_id_tree = newTree;
+        return *this;
+    }
+
     Company ChangeValue(int num){
         this->value = this->value + num;
         return *this;
     }
 
-
+    Company setEmployeesNum(int num)
+    {
+        employees_num = num;
+    }
     Company addEmployee (EmployeeById* employeeId , Employee* employee)
     {
         ///omer 27.4 - edited from: employees_id_tree->insert(employees_id_tree->root,employeeId);
