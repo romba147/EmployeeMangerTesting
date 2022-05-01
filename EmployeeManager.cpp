@@ -291,6 +291,7 @@ StatusType EmployeeManager::GetHighestEarnerInEachCompany(int NumOfCompanies, in
     return SUCCESS;
 }
 
+
 StatusType EmployeeManager::GetAllEmployeesBySalary(int CompanyID, int **Employees, int *NumOfEmployees)
 {
     if (Employees == nullptr || CompanyID == 0)
@@ -349,7 +350,8 @@ StatusType EmployeeManager::GetNumEmployeesMatching(int CompanyID, int MinEmploy
                                                     int MinGrade, int *TotalNumOfEmployees, int *NumOfEmployees)
 {
     if (TotalNumOfEmployees == nullptr || MinEmployeeId <0 || MaxEmployeeId <0||
-        MinGrade < 0 || MinSalary < 0 || NumOfEmployees == nullptr || CompanyID ==0)
+        MinGrade < 0 || MinSalary < 0 || NumOfEmployees == nullptr || CompanyID ==0 ||
+        MinEmployeeId>MaxEmployeeId)
     {
         return INVALID_INPUT;
     }

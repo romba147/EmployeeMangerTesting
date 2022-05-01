@@ -325,7 +325,6 @@ public:
             *counter = *counter + 1;
             inorderArrayAux(r->right, arr, counter, max);
         }
-
     }
 
     T** reverseInorderArray (int max) const
@@ -430,6 +429,10 @@ public:
     }
 
     node<T>* deleteAllNodes(node<T>* r) {
+        if(r== nullptr)
+        {
+            return nullptr;
+        }
         node<T> *base = r;
         r = deleteAllNodesAux(base, r);
         deleteNode(r, nullptr);
@@ -438,8 +441,13 @@ public:
 
     node<T>* deleteAllNodesAux(node<T>* base, node<T>* r)
     {
-        if (r == nullptr)
+        if (r== nullptr)
         {
+            return nullptr;
+        }                       //added condition
+        if ((!(r->left) && !(r->right))) //changed condition
+        {
+            r = deleteNode(r, nullptr);
             return nullptr;
         }
         r->left = deleteAllNodesAux(base, r->left);
@@ -451,6 +459,47 @@ public:
         }
     }
 
+    node<T>* deleteTreeWithData(node<T>* r) {
+        if(r == nullptr)
+        {
+            return nullptr;
+        }
+        node<T> *base = r;
+        r = deleteTreeWithDataAux(base, r);
+        deleteLeafWithData(r);
+        return nullptr;
+    }
+
+    node<T>* deleteTreeWithDataAux(node<T>* base, node<T>* r)
+    {
+        if (r== nullptr)
+        {
+            return nullptr;
+        }
+        if ((!(r->left) && !(r->right)) && r!=base)
+        {
+            r = deleteLeafWithData(r);
+            return nullptr;
+        }
+        r->left = deleteTreeWithDataAux(base, r->left);
+        r->right = deleteTreeWithDataAux(base, r->right);
+        if ((!(r->left) && !(r->right)) && r!=base)
+        {
+            r = deleteLeafWithData(r);
+            return nullptr;
+        }
+    }
+
+    node<T>* deleteLeafWithData (node<T>* r)
+    {
+        if (r->data!= nullptr)
+        {
+            delete r->data;
+        }
+        delete r;
+        size--;
+        return nullptr;
+    }
 };
 
 template<class T>
