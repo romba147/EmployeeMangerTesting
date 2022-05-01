@@ -70,6 +70,12 @@ public:
         return *this;
     }
 
+    Company setValue(int num)
+    {
+        value = num;
+        return *this;
+    }
+
     Company setEmployeesNum(int num)
     {
         employees_num = num;
@@ -110,6 +116,12 @@ public:
     }
     bool operator > (const Company& cmp1) const {
         return this->id > cmp1.id;
+    }
+
+    void deleteCompanyTrees ()
+    {
+        employees_tree->deleteAllNodes(employees_tree->root);
+        employees_id_tree->deleteAllNodes(employees_id_tree->root);
     }
 
 

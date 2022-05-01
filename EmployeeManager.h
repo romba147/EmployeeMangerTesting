@@ -31,10 +31,16 @@ public:
 
     ~EmployeeManager()
     {
+        Company** toDelete = allCompanies->inorderArray(allCompanies->size);
+        for (int i =0 ; i<allCompanies->size ; i++)
+        {
+            toDelete[i]->deleteCompanyTrees();
+        }
+        free (toDelete);
         delete allCompanies;
         delete nonEmptyCompanies;
-        delete salaryEmployees;
-        delete IdEmployees;
+        salaryEmployees->deleteTreeWithData(salaryEmployees->root);
+        IdEmployees->deleteTreeWithData(IdEmployees->root);
     }
 
     StatusType AddCompany (int companyId , int value);

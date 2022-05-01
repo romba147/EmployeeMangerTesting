@@ -114,9 +114,25 @@ int main()
     steve->GetNumEmployeesMatching(11 , 2,5 , 2600 ,1 , &numMatching, &numVeryMatching);
     cout << "exp 4 " << numMatching << " exp 3 "<< numVeryMatching <<endl;
     steve->AddCompany(66 , 700000);
+    steve->AddEmployee(56 , 66, 4000 , 3);
+    steve->AddEmployee(57 , 66, 2400 , 3);
+    steve->AddEmployee(58 , 66, 6500 , 3);
+    steve->AddEmployee(59 , 66, 1900 , 3);
+    steve->GetAllEmployeesBySalary(11, employeesBySalary,&employeesNum);
+    steve->GetCompanyInfo(11 , &value ,&employeesNum );
+
+    cout << "acquired company value :" << value << endl;
+    printArray(employeesBySalary,employeesNum);
+    steve->GetAllEmployeesBySalary(66, employeesBySalary,&employeesNum);
+    steve->GetCompanyInfo(66 , &value ,&employeesNum );
+
+    cout << "dest company value:" << value <<  endl;
+    printArray(employeesBySalary,employeesNum);
     steve->AcquireCompany(66,11 , 1.4);
     steve->GetAllEmployeesBySalary(66, employeesBySalary,&employeesNum);
-    cout << "exp 17 3 4 5 2 1" << endl;
+    cout << "merged company : " << endl;
     printArray(employeesBySalary,employeesNum);
+    steve->GetCompanyInfo(66 , &value ,&employeesNum );
+    cout << "exp 984372 " << value << endl;
 
 }

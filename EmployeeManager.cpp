@@ -58,10 +58,7 @@ StatusType EmployeeManager::AddCompany (int companyId , int value)
         return FAILURE;
     }
     auto* newCompany = new Company(companyId,value);
-    if (!newCompany)
-    {
-        return ALLOCATION_ERROR;
-    }
+
     this->allCompanies->insert(newCompany);
     return SUCCESS;
 }
@@ -82,15 +79,9 @@ StatusType EmployeeManager::AddEmployee(int EmployeeId, int CompanyId, int Salar
         return FAILURE;
     }
     auto* newEmployee = new Employee (EmployeeId,Salary,Grade);
-    if (!newEmployee)
-    {
-        return ALLOCATION_ERROR;
-    }
+
     auto* newEmployeeById = new EmployeeById (EmployeeId,Salary,Grade);
-    if (!newEmployeeById)
-    {
-        return ALLOCATION_ERROR;
-    }
+
     reqCompany->addEmployee(newEmployeeById,newEmployee);
     salaryEmployees->insert(newEmployee);
     IdEmployees->insert(newEmployeeById);
@@ -344,11 +335,9 @@ StatusType EmployeeManager::GetAllEmployeesBySalary(int CompanyID, int **Employe
     {
         return ALLOCATION_ERROR;
     }
-    int check=0;
     for (int i = 0 ; i < reqCompany->getEmployeesNum() ; i++)
     {
         idArray[i] =preArray2[i]->getId();
-        check = idArray[i];
     }
     *(Employees) = idArray;
     free(preArray2);
@@ -441,7 +430,7 @@ StatusType EmployeeManager::AcquireCompany(int AcquirerId, int TargetId, double 
     {
         toChangeCompany[i]->changeCompany(acqCompany);
     }
-    acqCompany->ChangeValue((int)(factor*((double)(acqCompany->getValue()))));
+    acqCompany->setValue((int)(factor*((double)(acqCompany->getValue() + trgCompany->getValue()))));
     if (acqCompany->getEmployeesNum() == 0)
     {
         nonEmptyCompanies->insert(acqCompany);
