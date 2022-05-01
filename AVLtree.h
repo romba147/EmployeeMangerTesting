@@ -51,6 +51,9 @@ public:
         this->root = nullptr;
         size=0;
     }
+    ~AVLtree(){
+        this->deleteAllNodes(root);
+    }
     int calHeight (node<T>* p) const{
         if (!(p->left) && !(p->right)){
             return 0;
@@ -215,7 +218,11 @@ public:
     }
 
     node<T>* deleteNode (node<T>* r , T* data) {
-
+        ///added this condition. if there are problems with delete - check here
+        if (r == nullptr)
+        {
+            return nullptr;
+        }
         if (!(r->left) && !(r->right)){
             if (r == this->root){
                 this->root = nullptr;
@@ -482,9 +489,9 @@ void createEmptyNearlyCompleteTree (AVLtree<T>* emptyTree, int finalSize)
 template<class T>
 void mergeArrays (T** arr1, T** arr2, T** destArr , int t1size, int t2size)
 {
-    int** p1=arr1;
-    int** p2=arr2;
-    int** pDest=destArr;
+    T** p1=arr1;
+    T** p2=arr2;
+    T** pDest=destArr;
     int t1 = t1size;
     int t2 = t2size;
     while (t1 > 0 && t2 > 0)

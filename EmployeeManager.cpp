@@ -116,6 +116,7 @@ StatusType EmployeeManager::RemoveEmployee(int EmployeeId)
     {
         return FAILURE;
     }
+
     auto* reqEmployee = getEmployee(salaryEmployees,EmployeeId,reqEmployeeById->getSalary());
     auto* reqCompany = reqEmployeeById->getEmployeeCompany();
     reqCompany->removeEmployee(reqEmployeeById,reqEmployee);
@@ -123,12 +124,13 @@ StatusType EmployeeManager::RemoveEmployee(int EmployeeId)
     {
         nonEmptyCompanies->deleteNode(nonEmptyCompanies->root,reqCompany);
     }
+    salaryEmployees->deleteNode(salaryEmployees->root , reqEmployee);
     if (salaryEmployees->root != nullptr) {
         this->highestSalary = salaryEmployees->biggest(salaryEmployees->root)->data;
     }
-    salaryEmployees->deleteNode(salaryEmployees->root , reqEmployee);
     IdEmployees->deleteNode(IdEmployees->root , reqEmployeeById);
     delete reqEmployee;
+    delete reqEmployeeById;
     return SUCCESS;
 }
 
@@ -215,16 +217,16 @@ StatusType EmployeeManager::PromoteEmployee(int EmployeeId, int SalaryIncrease, 
     if (BumpGrade>0) {
         reqEmployee->BumpGrade(BumpGrade);
     }
-    reqEmployeeById->BumpGrade(BumpGrade);
-    reqEmployeeById->IncreaseSalary(SalaryIncrease);
-    reqEmployeeById->BumpGrade(BumpGrade);
-    reqEmployee->IncreaseSalary(SalaryIncrease);
     auto* reqCompany = reqEmployeeById->getEmployeeCompany();
     reqCompany->getEmployeesTree()->deleteNode(reqCompany->getEmployeesTree()->root, reqEmployee);
-    reqCompany->getEmployeesTree()->insert(reqEmployee);
-    reqCompany->setHighestEarner();
     salaryEmployees->deleteNode(salaryEmployees->root,reqEmployee);
+    reqEmployeeById->BumpGrade(BumpGrade);
+    reqEmployeeById->IncreaseSalary(SalaryIncrease);
+    reqEmployee->BumpGrade(BumpGrade);
+    reqEmployee->IncreaseSalary(SalaryIncrease);
+    reqCompany->getEmployeesTree()->insert(reqEmployee);
     salaryEmployees->insert(reqEmployee);
+    reqCompany->setHighestEarner();
     highestSalary = salaryEmployees->biggest(salaryEmployees->root)->data;
     return SUCCESS;
 }
@@ -248,6 +250,11 @@ StatusType EmployeeManager::HireEmployee(int EmployeeId, int NewCompany)
     }
 
     reqEmployeeById->getEmployeeCompany()->removeEmployee(reqEmployeeById,reqEmployee);
+    if (reqEmployeeById->getEmployeeCompany()->getEmployeesNum() == 0)
+    {
+        this->nonEmptyCompanies->deleteNode(nonEmptyCompanies->root, reqEmployeeById->getEmployeeCompany());
+    }
+    reqEmployeeById->changeCompany(reqCompany);
     reqCompany->addEmployee(reqEmployeeById,reqEmployee);
     return  SUCCESS;
 }
@@ -279,17 +286,17 @@ StatusType EmployeeManager::GetHighestEarnerInEachCompany(int NumOfCompanies, in
     {
         return INVALID_INPUT;
     }
-    Employees = (int** )malloc(NumOfCompanies*sizeof (int *));
+    auto* idArray = (int* )malloc(NumOfCompanies*sizeof (int));
     if(!Employees)
     {
         return ALLOCATION_ERROR;
     }
-    int stam =0;
     auto* array = nonEmptyCompanies->inorderArray(NumOfCompanies);
     for (int i =0 ; i<NumOfCompanies ; i++)
     {
-        *(Employees[i]) = array[i]->getHighestEarnerId();
+        idArray[i] = array[i]->getHighestEarnerId();
     }
+    *(Employees) = idArray;
     return SUCCESS;
 }
 
@@ -307,16 +314,17 @@ StatusType EmployeeManager::GetAllEmployeesBySalary(int CompanyID, int **Employe
         {
             return ALLOCATION_ERROR;
         }
-        Employees = (int**)malloc((salaryEmployees->size)*sizeof (int*));
-        if(!Employees)
+        auto* idArray2 = (int*)malloc((salaryEmployees->size)*sizeof (int));
+        if(!idArray2)
         {
             return ALLOCATION_ERROR;
         }
         for (int i = 0 ; i < salaryEmployees->size ; i++)
         {
-            *(Employees[i]) = preArray[i]->getId();
+            idArray2[i] = preArray[i]->getId();
         }
         free(preArray);
+        *Employees = idArray2;
         *NumOfEmployees = salaryEmployees->size;
         return SUCCESS;
     }
@@ -331,15 +339,18 @@ StatusType EmployeeManager::GetAllEmployeesBySalary(int CompanyID, int **Employe
     {
         return ALLOCATION_ERROR;
     }
-    Employees = (int**)malloc((reqCompany->getEmployeesNum())*sizeof (int*));
-    if(!Employees)
+    auto* idArray = (int*)malloc((reqCompany->getEmployeesNum())*sizeof (int));
+    if(!idArray)
     {
         return ALLOCATION_ERROR;
     }
+    int check=0;
     for (int i = 0 ; i < reqCompany->getEmployeesNum() ; i++)
     {
-        *(Employees[i]) = preArray2[i]->getId();
+        idArray[i] =preArray2[i]->getId();
+        check = idArray[i];
     }
+    *(Employees) = idArray;
     free(preArray2);
     *NumOfEmployees=reqCompany->getEmployeesNum();
     return SUCCESS;
@@ -359,6 +370,10 @@ StatusType EmployeeManager::GetNumEmployeesMatching(int CompanyID, int MinEmploy
     int numVeryMatching =0;
     if (CompanyID < 0)
     {
+        if (this->IdEmployees->size == 0)
+        {
+            return FAILURE;
+        }
         auto* preArray = IdEmployees->smartInorderArray(minIdEmployee,maxIdEmployee,&numMatching);
         *TotalNumOfEmployees = numMatching;
         for (int i = 0 ; i< numMatching; i++)
@@ -373,7 +388,7 @@ StatusType EmployeeManager::GetNumEmployeesMatching(int CompanyID, int MinEmploy
         return SUCCESS;
     }
     auto* reqCompany = getCompany(allCompanies,CompanyID);
-    if (reqCompany == nullptr)
+    if (reqCompany == nullptr || reqCompany->getEmployeesNum() ==0)
     {
         return FAILURE;
     }
@@ -414,18 +429,27 @@ StatusType EmployeeManager::AcquireCompany(int AcquirerId, int TargetId, double 
     auto* newTreeEmployeeById = new AVLtree<EmployeeById>();
     uniteTrees<EmployeeById>(acqCompany->getEmployeesByIdTree(),trgCompany->getEmployeesByIdTree(),newTreeEmployeeById);
     uniteTrees<Employee>(acqCompany->getEmployeesTree(),trgCompany->getEmployeesTree(),newTreeEmployee);
+
+    delete acqCompany->getEmployeesByIdTree();
+    delete acqCompany->getEmployeesTree();
+
     acqCompany->setEmployeesByIdTree(newTreeEmployeeById);
     acqCompany->setEmployeesTree(newTreeEmployee);
+
     auto* toChangeCompany = trgCompany->getEmployeesByIdTree()->inorderArray(trgCompany->getEmployeesNum());
     for (int i =0; i<trgCompany->getEmployeesNum() ; i++)
     {
         toChangeCompany[i]->changeCompany(acqCompany);
     }
     acqCompany->ChangeValue((int)(factor*((double)(acqCompany->getValue()))));
+    if (acqCompany->getEmployeesNum() == 0)
+    {
+        nonEmptyCompanies->insert(acqCompany);
+    }
+    acqCompany->setEmployeesNum(acqCompany->getEmployeesNum() + trgCompany->getEmployeesNum());
+
     trgCompany->getEmployeesTree()->deleteAllNodes(trgCompany->getEmployeesTree()->root);
     trgCompany->getEmployeesByIdTree()->deleteAllNodes(trgCompany->getEmployeesByIdTree()->root);
-    acqCompany->setEmployeesNum(acqCompany->getEmployeesNum() + trgCompany->getEmployeesNum());
-    trgCompany->setEmployeesNum(0);
     this->RemoveCompany(TargetId);
     return SUCCESS;
 }

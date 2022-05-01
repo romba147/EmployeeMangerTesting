@@ -16,10 +16,10 @@ typedef enum {
 class EmployeeManager {
     AVLtree<Company>* allCompanies;
     AVLtree<Company>* nonEmptyCompanies;
-    AVLtree<Employee>* salaryEmployees;
     AVLtree<EmployeeById>* IdEmployees;
     Employee* highestSalary;
 public:
+    AVLtree<Employee>* salaryEmployees;
     EmployeeManager()
     {
         allCompanies = new AVLtree<Company>();

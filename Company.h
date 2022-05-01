@@ -19,6 +19,7 @@ public:
         highest_earner = nullptr;
     };
 
+
     int getId () const {
         return this->id;
     }
@@ -72,6 +73,7 @@ public:
     Company setEmployeesNum(int num)
     {
         employees_num = num;
+        return *this;
     }
     Company addEmployee (EmployeeById* employeeId , Employee* employee)
     {
