@@ -240,11 +240,11 @@ StatusType EmployeeManager::HireEmployee(int EmployeeId, int NewCompany)
         return FAILURE;
     }
 
-    reqEmployeeById->getEmployeeCompany()->removeEmployee(reqEmployeeById,reqEmployee);
-    if (reqEmployeeById->getEmployeeCompany()->getEmployeesNum() == 0)
+    if (reqEmployeeById->getEmployeeCompany()->getEmployeesNum() == 1)
     {
         this->nonEmptyCompanies->deleteNode(nonEmptyCompanies->root, reqEmployeeById->getEmployeeCompany());
     }
+    reqEmployeeById->getEmployeeCompany()->removeEmployee(reqEmployeeById,reqEmployee);
     reqEmployeeById->changeCompany(reqCompany);
     reqCompany->addEmployee(reqEmployeeById,reqEmployee);
     return  SUCCESS;
@@ -441,6 +441,9 @@ StatusType EmployeeManager::AcquireCompany(int AcquirerId, int TargetId, double 
 
     trgCompany->getEmployeesTree()->deleteAllNodes(trgCompany->getEmployeesTree()->root);
     trgCompany->getEmployeesByIdTree()->deleteAllNodes(trgCompany->getEmployeesByIdTree()->root);
+    trgCompany->setEmployeesNum(0);
+    nonEmptyCompanies->deleteNode(nonEmptyCompanies->root , trgCompany);
+    acqCompany->setHighestEarner();
     this->RemoveCompany(TargetId);
     return SUCCESS;
 }
