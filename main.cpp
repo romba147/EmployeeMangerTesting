@@ -235,6 +235,9 @@ int main()
     int employeesNum=0;
     int numMatching =0;
     int numVeryMatching =0;
+    int value =0;
+    int companyid=0;
+    int sat=0;
     em->AddCompany (1 ,50);
     em->AddCompany (2,500);
     em->AddCompany (3,5000);
@@ -244,9 +247,27 @@ int main()
     em->AcquireCompany (3 ,2 ,1.63);
     em->IncreaseCompanyValue (1 ,100);
     em->PromoteEmployee (13 ,10 ,1);
-/*    em->GetHighestEarner (12,&highestEarner);
+    em->GetHighestEarner (12,&highestEarner);
     em->GetAllEmployeesBySalary (3,employeesBySalary,&employeesNum);
     em->GetHighestEarnerInEachCompany (2,highestEarnerInEach);
-    em->GetNumEmployeesMatching (-1, 0 ,20 ,100 ,10,&numMatching,&numVeryMatching);*/
+    em->GetNumEmployeesMatching (-1, 0 ,20 ,100 ,10,&numMatching,&numVeryMatching);
     em->HireEmployee (12, 1);
+    em->GetCompanyInfo (1,&value,&employeesNum);
+    em->GetCompanyInfo (2,&value,&employeesNum);
+    em->GetCompanyInfo (3,&value,&employeesNum);
+    em->GetEmployeeInfo (11,&companyid,&sat,&sat);
+    em->GetEmployeeInfo (12,&companyid,&sat,&sat);
+    em->GetEmployeeInfo (13,&companyid,&sat,&sat);
+    em->RemoveEmployee (13);
+    em->RemoveCompany (3);
+    em->AddEmployee (11 ,1 ,70, 25);
+    em->GetCompanyInfo (-14,&value,&employeesNum);
+    em->GetCompanyInfo (1,&value,&employeesNum);
+    em->IncreaseCompanyValue (1 ,39);
+    em->IncreaseCompanyValue (1 ,15);
+    em->GetHighestEarner (1,&highestEarner);
+    em->GetNumEmployeesMatching (1 ,1, 52 ,54 ,65,&numMatching,&numVeryMatching);
+    em->GetHighestEarnerInEachCompany (1,highestEarnerInEach);
+    delete em;
+
 }
